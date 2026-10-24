@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #F4F1EA;
+    color: #1E293B;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-serif-editorial {
+    font-family: var(--font-serif);
+  }
+}
+
+/* Scrapbook Grid Paper Texture */
+.bg-scrapbook-grid {
+  background-color: #FAF8F3;
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.24) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.24) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Soft Blue Gingham / Plaid Fabric Texture (from PDF demo) */
+.bg-blue-gingham {
+  background-color: #EFF6FF;
+  background-image: 
+    linear-gradient(90deg, rgba(96, 165, 250, 0.35) 50%, transparent 50%),
+    linear-gradient(rgba(96, 165, 250, 0.35) 50%, transparent 50%);
+  background-size: 36px 36px;
+}
+
+/* Watercolor Blue Button Texture (like YES / NO / NEXT in PDF) */
+.btn-scrapbook-blue {
+  background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 55%, #3B82F6 100%);
+  box-shadow: 0 3px 0 #1D4ED8, 0 6px 14px rgba(37, 99, 235, 0.22);
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), opacity 150ms ease;
+}
+
+.btn-scrapbook-blue:hover {
+  transform: translateY(-2px);
+}
+
+.btn-scrapbook-blue:active {
+  transform: translateY(1px);
+}
+
+@keyframes shake-gentle {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px) rotate(-1deg); }
+  40% { transform: translateX(8px) rotate(1deg); }
+  60% { transform: translateX(-6px) rotate(-0.5deg); }
+  80% { transform: translateX(6px) rotate(0.5deg); }
+}
+
+.animate-shake {
+  animation: shake-gentle 0.45s ease-in-out;
+}
+
+@keyframes float-heart-drift-a {
+  0% {
+    transform: translate3d(0, 105vh, 0) rotate(-8deg) scale(0.85);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--heart-max-opacity, 0.32);
+  }
+  50% {
+    transform: translate3d(28px, 48vh, 0) rotate(10deg) scale(1);
+    opacity: var(--heart-max-opacity, 0.32);
+  }
+  88% {
+    opacity: var(--heart-max-opacity, 0.28);
+  }
+  100% {
+    transform: translate3d(-22px, -12vh, 0) rotate(-12deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes float-heart-drift-b {
+  0% {
+    transform: translate3d(0, 105vh, 0) rotate(10deg) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--heart-max-opacity, 0.28);
+  }
+  55% {
+    transform: translate3d(-34px, 42vh, 0) rotate(-14deg) scale(1.05);
+    opacity: var(--heart-max-opacity, 0.28);
+  }
+  85% {
+    opacity: var(--heart-max-opacity, 0.24);
+  }
+  100% {
+    transform: translate3d(24px, -12vh, 0) rotate(8deg) scale(0.92);
+    opacity: 0;
+  }
+}
+
+.animate-floating-heart-a {
+  animation-name: float-heart-drift-a;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+.animate-floating-heart-b {
+  animation-name: float-heart-drift-b;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-floating-heart-a,
+  .animate-floating-heart-b {
+    animation: none;
+    opacity: 0;
+  }
+}

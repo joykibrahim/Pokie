@@ -1,0 +1,846 @@
+:root {
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  background-color: #1E3A8A;
+  color: #1E293B;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Main Full-Viewport Non-Scrollable Stage */
+.scrapbook-viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: radial-gradient(circle at center, #1E40AF 0%, #1E3A8A 65%, #172554 100%);
+}
+
+/* Outer Scrapbook Collage Background Clippings */
+.outer-collage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.newspaper-clip {
+  position: absolute;
+  background-color: #F5F2EB;
+  border: 1px solid #CBD5E1;
+  padding: 14px;
+  font-family: var(--font-serif);
+  font-size: 10px;
+  line-height: 1.35;
+  color: #475569;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  opacity: 0.92;
+}
+
+.newspaper-clip h4 {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.clip-top-left {
+  top: -18px;
+  left: -18px;
+  width: 280px;
+  height: 190px;
+  transform: rotate(-7deg);
+}
+
+.clip-top-right {
+  top: -14px;
+  right: -18px;
+  width: 300px;
+  height: 210px;
+  transform: rotate(6deg);
+}
+
+.gingham-patch-outer {
+  position: absolute;
+  bottom: -32px;
+  right: -32px;
+  width: 360px;
+  height: 290px;
+  transform: rotate(-4deg);
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+/* Soft Blue Gingham Pattern */
+.bg-blue-gingham {
+  background-color: #EFF6FF;
+  background-image:
+    linear-gradient(90deg, rgba(96, 165, 250, 0.35) 50%, transparent 50%),
+    linear-gradient(rgba(96, 165, 250, 0.35) 50%, transparent 50%);
+  background-size: 34px 34px;
+}
+
+/* Scrapbook Grid Paper Sheet */
+.scrapbook-sheet {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1060px;
+  height: calc(100vh - 36px);
+  max-height: 690px;
+  background-color: #FAF8F3;
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.25) 1px, transparent 1px);
+  background-size: 28px 28px;
+  border: 4px solid #FAF8F3;
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
+  padding: 24px 32px;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  animation: page-enter 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scrapbook-sheet.active {
+  display: flex;
+}
+
+@keyframes page-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.font-serif-editorial {
+  font-family: var(--font-serif);
+}
+
+/* Watercolor Blue Scrapbook Buttons (YES / NO / NEXT / BACK) */
+.btn-scrapbook-blue {
+  background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 55%, #3B82F6 100%);
+  box-shadow: 0 3px 0 #1D4ED8, 0 6px 14px rgba(37, 99, 235, 0.24);
+  color: #FFFFFF;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 8px 28px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), filter 150ms ease;
+  white-space: nowrap;
+}
+
+.btn-scrapbook-blue:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+.btn-scrapbook-blue:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary-paper {
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  color: #475569;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+  white-space: nowrap;
+}
+
+.btn-secondary-paper:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+/* Corner Flower Positioning */
+.corner-lily {
+  position: absolute;
+  pointer-events: none;
+  z-index: 20;
+  filter: drop-shadow(0 4px 8px rgba(15, 23, 42, 0.18));
+}
+
+.lily-top-right {
+  top: -28px;
+  right: -20px;
+  width: 125px;
+  height: 125px;
+  transform: rotate(12deg);
+}
+
+.lily-bottom-left {
+  bottom: -28px;
+  left: -20px;
+  width: 118px;
+  height: 118px;
+  transform: rotate(-12deg);
+}
+
+/* PAGE 1: Lock Screen Layout */
+.page1-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 28px;
+  align-items: center;
+  height: 100%;
+  my: auto;
+}
+
+.passcode-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 2px solid #BFDBFE;
+  border-radius: 20px;
+  padding: 20px 22px;
+  box-shadow: 0 14px 32px rgba(30, 58, 138, 0.12);
+  max-width: 370px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.passcode-slots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+
+.passcode-slot {
+  width: 54px;
+  height: 62px;
+  border-radius: 14px;
+  border: 2px dashed #CBD5E1;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+}
+
+.passcode-slot.filled {
+  background: #EFF6FF;
+  border: 2px solid #3B82F6;
+  transform: scale(1.04);
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: 8px;
+}
+
+.heart-key-btn {
+  position: relative;
+  height: 58px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%);
+  border: 1px solid #93C5FD;
+  box-shadow: 0 2px 4px rgba(30, 58, 138, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.heart-key-btn:hover {
+  background: linear-gradient(180deg, #DBEAFE 0%, #BFDBFE 100%);
+  transform: translateY(-1px);
+}
+
+.heart-key-btn:active {
+  transform: scale(0.95);
+}
+
+.heart-key-btn .heart-bg-halo {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  color: rgba(251, 113, 133, 0.25);
+  pointer-events: none;
+}
+
+.key-action-btn {
+  height: 58px;
+  border-radius: 14px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.key-action-btn:hover {
+  background: #E2E8F0;
+}
+
+/* Shake Animation on Wrong Code */
+@keyframes shake-gentle {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px) rotate(-1deg); }
+  40% { transform: translateX(8px) rotate(1deg); }
+  60% { transform: translateX(-6px) rotate(-0.5deg); }
+  80% { transform: translateX(6px) rotate(0.5deg); }
+}
+
+.animate-shake {
+  animation: shake-gentle 0.45s ease-in-out;
+  border-color: #F43F5E !important;
+}
+
+/* PAGE 3: Calendar Special Day */
+.calendar-clipboard {
+  background: #F8F5EE;
+  border: 2px solid #CBD5E1;
+  border-radius: 18px;
+  padding: 18px 22px;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+  transform: rotate(-1.5deg);
+  max-width: 410px;
+  width: 100%;
+}
+
+.calendar-grid-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.cal-day {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #334155;
+  position: relative;
+}
+
+.cal-day.special-oct-14 {
+  background: #FFE4E6;
+  color: #BE123C;
+  font-weight: 700;
+  border: 2px solid #F43F5E;
+}
+
+/* PAGE 4: Camera (14 Photos) & 2 Photo Booth Strips */
+.page4-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.85fr;
+  gap: 24px;
+  align-items: center;
+  height: 100%;
+  margin: auto 0;
+}
+
+.camera-body {
+  background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 55%, #93C5FD 100%);
+  border: 2.5px solid #60A5FA;
+  border-radius: 28px;
+  padding: 20px 22px;
+  box-shadow: 0 18px 36px rgba(30, 58, 138, 0.2);
+  width: 100%;
+  max-width: 560px;
+}
+
+.camera-lcd {
+  position: relative;
+  background: #0F172A;
+  border: 3.5px solid #334155;
+  border-radius: 16px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes cam-slide-fade {
+  0% {
+    opacity: 0.35;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pokie-cam-slide {
+  animation: cam-slide-fade 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cam-progress-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.cam-progress-bar {
+  height: 100%;
+  background: #60A5FA;
+  width: 0%;
+  animation: cam-progress-fill 3s linear infinite;
+}
+
+.camera-lcd img,
+.booth-slot img,
+.polaroid-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.booth-strips-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.photo-strip {
+  background: #FFFFFF;
+  padding: 10px 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #CBD5E1;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 165px;
+}
+
+.photo-strip.strip-left {
+  transform: rotate(-3deg);
+}
+
+.photo-strip.strip-right {
+  transform: rotate(3.5deg);
+}
+
+.booth-slot {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #F1F5F9;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+  position: relative;
+}
+
+/* PAGE 5: Aesthetic Vintage Retro Suitcase Turntable & Spotify Deck */
+.vintage-gramophone-shell {
+  position: relative;
+  max-width: 850px;
+  width: 100%;
+  margin: 0 auto;
+  background: linear-gradient(145deg, #EADBC8 0%, #DAC0A3 55%, #C7A987 100%);
+  border: 3px solid #8C6239;
+  border-radius: 26px;
+  padding: 16px;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.65),
+    inset 0 -4px 10px rgba(92, 58, 33, 0.25),
+    0 20px 44px rgba(15, 23, 42, 0.24);
+}
+
+/* Brass Corner Protectors on Vintage Suitcase */
+.brass-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #B45309;
+  background: linear-gradient(135deg, #FDE68A 0%, #D97706 100%);
+  z-index: 3;
+}
+.brass-corner.tl { top: -2px; left: -2px; border-radius: 22px 0 8px 0; }
+.brass-corner.tr { top: -2px; right: -2px; border-radius: 0 22px 0 8px; }
+.brass-corner.bl { bottom: -2px; left: -2px; border-radius: 0 8px 0 22px; }
+.brass-corner.br { bottom: -2px; right: -2px; border-radius: 8px 0 22px 0; }
+
+.vintage-inner-deck {
+  background: linear-gradient(180deg, #FFFDF9 0%, #F5EFE6 100%);
+  border: 2px solid #B08968;
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: 255px 1fr;
+  gap: 24px;
+  align-items: center;
+  box-shadow: inset 0 2px 8px rgba(120, 53, 15, 0.08);
+}
+
+/* Turntable Platter Well */
+.turntable-platter-well {
+  position: relative;
+  width: 230px;
+  height: 215px;
+  background: radial-gradient(circle at 46% 50%, #E6CCB2 0%, #DDB892 72%, #B08968 100%);
+  border: 2px solid #9C6644;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 18px;
+  box-shadow: inset 0 3px 10px rgba(62, 39, 35, 0.2);
+  margin: 0 auto;
+}
+
+.vinyl-turntable {
+  width: 178px;
+  height: 178px;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      #111827 0px,
+      #111827 3px,
+      #1F2937 4px,
+      #0F172A 6px
+    );
+  border: 3px solid #374151;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.38);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Vinyl Light Sheen Reflection */
+.vinyl-turntable::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 35deg,
+    transparent 0deg,
+    rgba(255, 255, 255, 0.14) 25deg,
+    transparent 55deg,
+    transparent 180deg,
+    rgba(255, 255, 255, 0.14) 205deg,
+    transparent 235deg
+  );
+  pointer-events: none;
+}
+
+.vinyl-center-label {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFF1F2 0%, #FECDD3 65%, #E11D48 100%);
+  border: 3px solid #9F1239;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  color: #881337;
+  position: relative;
+  z-index: 2;
+}
+
+.vinyl-spindle-hole {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F8FAFC;
+  border: 1.5px solid #475569;
+  margin: 2px 0;
+}
+
+@keyframes spin-vinyl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vinyl-turntable.spinning {
+  animation: spin-vinyl 4.2s linear infinite;
+}
+
+/* Pivoting Vintage Brass Tonearm */
+.vintage-tonearm {
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  width: 48px;
+  height: 145px;
+  transform-origin: 30px 18px;
+  transform: rotate(22deg);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.vintage-tonearm.paused {
+  transform: rotate(-8deg);
+}
+
+/* Right Column: Analog VU Header + Embedded Spotify Cassette Frame */
+.vintage-radio-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vintage-dial-strip {
+  background: linear-gradient(180deg, #271815 0%, #3E2723 100%);
+  border: 2px solid #78350F;
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #FEF3C7;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.65);
+}
+
+.equalizer-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.eq-bar {
+  width: 4px;
+  background: linear-gradient(180deg, #F43F5E 0%, #FBBF24 50%, #34D399 100%);
+  border-radius: 2px;
+  animation: eq-bounce 0.9s ease-in-out infinite alternate;
+}
+
+.eq-bar:nth-child(1) { height: 8px; animation-duration: 0.65s; }
+.eq-bar:nth-child(2) { height: 16px; animation-duration: 0.85s; }
+.eq-bar:nth-child(3) { height: 11px; animation-duration: 0.55s; }
+.eq-bar:nth-child(4) { height: 18px; animation-duration: 0.75s; }
+.eq-bar:nth-child(5) { height: 10px; animation-duration: 0.95s; }
+
+.equalizer-bars.paused .eq-bar {
+  animation: none;
+  height: 4px !important;
+}
+
+@keyframes eq-bounce {
+  0% { transform: scaleY(0.35); }
+  100% { transform: scaleY(1); }
+}
+
+.spotify-vintage-frame {
+  background: #D4A373;
+  padding: 6px;
+  border-radius: 16px;
+  border: 2px solid #8C6239;
+  box-shadow: 0 6px 16px rgba(69, 26, 3, 0.14);
+}
+
+.vintage-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #EFE6D5;
+  border: 1.5px solid #C8B6A6;
+  border-radius: 12px;
+  padding: 8px 14px;
+}
+
+.btn-vintage-brass {
+  background: linear-gradient(180deg, #FEF3C7 0%, #F59E0B 55%, #B45309 100%);
+  border: 1.5px solid #78350F;
+  color: #271815;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #78350F;
+  transition: transform 120ms ease;
+}
+
+.btn-vintage-brass:hover {
+  transform: translateY(-1px);
+}
+
+.btn-vintage-brass:active {
+  transform: translateY(1px);
+}
+
+/* PAGE 6: 4 Hanging Polaroids (2023, 2024, 2025, 2026) */
+.polaroid-four-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.polaroid-card {
+  background: #FFFFFF;
+  padding: 10px 10px 16px;
+  border-radius: 12px;
+  border: 1px solid #CBD5E1;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.16);
+  text-align: center;
+  position: relative;
+  transition: transform 200ms ease;
+}
+
+.polaroid-card:hover {
+  transform: scale(1.04) rotate(0deg) !important;
+  z-index: 25;
+}
+
+.polaroid-slot {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #F1F5F9;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+}
+
+/* PAGE 7: Single Vintage Love Letter */
+.love-letter-parchment {
+  background: linear-gradient(180deg, #FFFDF9 0%, #FAF3DD 100%);
+  border: 2px solid #D4A373;
+  border-radius: 18px;
+  padding: 28px 38px;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 18px 40px rgba(69, 26, 3, 0.16);
+  position: relative;
+}
+
+/* Subtle Floating Hearts Background Animation (Active When Unlocked) */
+.floating-hearts-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 30;
+  display: none;
+}
+
+.floating-hearts-layer.active {
+  display: block;
+}
+
+@keyframes float-heart-drift-a {
+  0% {
+    transform: translate3d(0, 105vh, 0) rotate(-8deg) scale(0.85);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--heart-max-opacity, 0.32);
+  }
+  50% {
+    transform: translate3d(28px, 48vh, 0) rotate(10deg) scale(1);
+    opacity: var(--heart-max-opacity, 0.32);
+  }
+  88% {
+    opacity: var(--heart-max-opacity, 0.28);
+  }
+  100% {
+    transform: translate3d(-22px, -12vh, 0) rotate(-12deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes float-heart-drift-b {
+  0% {
+    transform: translate3d(0, 105vh, 0) rotate(10deg) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--heart-max-opacity, 0.28);
+  }
+  55% {
+    transform: translate3d(-34px, 42vh, 0) rotate(-14deg) scale(1.05);
+    opacity: var(--heart-max-opacity, 0.28);
+  }
+  85% {
+    opacity: var(--heart-max-opacity, 0.24);
+  }
+  100% {
+    transform: translate3d(24px, -12vh, 0) rotate(8deg) scale(0.92);
+    opacity: 0;
+  }
+}
+
+.animate-floating-heart-a {
+  animation-name: float-heart-drift-a;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.animate-floating-heart-b {
+  animation-name: float-heart-drift-b;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Responsive adjustments so it remains non-scrollable on smaller laptop screens */
+@media (max-width: 900px) {
+  .page1-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .vintage-inner-deck {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .polaroid-four-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}

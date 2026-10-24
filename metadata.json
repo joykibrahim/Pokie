@@ -1,0 +1,6 @@
+{
+  "name": "For My Pokie — Interactive Scrapbook & Love Gallery",
+  "description": "An interactive blue-and-cream handmade digital scrapbook, passcode lock screen with love-shaped numerals, anniversary story pages, and custom polaroid photo gallery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
