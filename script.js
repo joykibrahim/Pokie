@@ -146,102 +146,144 @@ function createRomanticFallbackDataURI(photoName, subtitle = '') {
 }
 
 /**
- * Cache of resolved image URLs so the 3-second PokieCam slideshow
- * transitions smoothly and instantaneously every 3 seconds.
+ * Cache of ONLY successfully resolved real image URLs (never caches fallbacks).
+ * Remembers the working folder & extension so subsequent photos resolve on the 1st check.
  */
-const resolvedImageCache = new Map();
+const verifiedPhotoCache = new Map();
+const inFlightResolutions = new Map();
+let preferredFolder = 'images/';
+let preferredExt = '.jpg';
 
-function getCandidateUrls(baseName) {
-  const folders = ['images/', 'image/', 'Images/', ''];
-  const exts = ['.jpg', '.jpeg', '.png', '.webp', '.JPG', '.PNG', '.JPEG'];
-  const names = Array.from(new Set([baseName, baseName.toLowerCase(), baseName.toUpperCase()]));
+function getOrderedCandidates(baseName) {
+  const lower = baseName.toLowerCase();
+  const upper = baseName.toUpperCase();
+  const spaceName = baseName.replace(/([A-Za-z]+)(\d+)/, '$1 $2');
 
-  const list = [];
-  for (const folder of folders) {
-    for (const ext of exts) {
-      for (const name of names) {
-        list.push(`${folder}${name}${ext}`);
-      }
-    }
+  const rawList = [
+    `${preferredFolder}${baseName}${preferredExt}`,
+    `images/${baseName}.jpg`,
+    `images/${baseName}.jpeg`,
+    `images/${baseName}.png`,
+    `images/${baseName}.webp`,
+    `images/${baseName}.JPG`,
+    `images/${baseName}.JPEG`,
+    `images/${baseName}.PNG`,
+    `images/${lower}.jpg`,
+    `images/${lower}.jpeg`,
+    `images/${lower}.png`,
+    `images/${lower}.webp`,
+    `images/${upper}.JPG`,
+    `images/${upper}.PNG`,
+    `image/${baseName}.jpg`,
+    `image/${baseName}.jpeg`,
+    `image/${baseName}.png`,
+    `image/${lower}.jpg`,
+    `image/${lower}.png`,
+    `Images/${baseName}.jpg`,
+    `Images/${baseName}.jpeg`,
+    `Images/${baseName}.png`,
+    `images/${spaceName}.jpg`,
+    `images/${spaceName}.png`,
+    `${baseName}.jpg`,
+    `${baseName}.jpeg`,
+    `${baseName}.png`,
+  ];
+
+  return Array.from(new Set(rawList));
+}
+
+function recordWorkingFormat(url) {
+  const match = url.match(/^(.*\/)?[^/]+(\.[a-zA-Z0-9]+)$/);
+  if (match) {
+    if (match[1] !== undefined) preferredFolder = match[1];
+    if (match[2]) preferredExt = match[2];
   }
-  return list;
 }
 
 /**
- * Resolves the real URL for a photo name by probing candidate paths in parallel,
- * and caches the result (either the real image path or the fallback SVG) so
- * subsequent 3-second slideshow ticks happen in 0ms without re-probing.
+ * Checks if an image URL exists and is an actual image.
+ * Uses a fast HEAD request on HTTP/HTTPS (GitHub Pages) so large phone photos
+ * resolve in ~20ms without downloading megabytes during probing.
  */
-function resolvePhotoUrl(baseName, subtitle = '', onResolved) {
-  if (resolvedImageCache.has(baseName)) {
-    onResolved(resolvedImageCache.get(baseName));
-    return;
-  }
-
-  const candidates = getCandidateUrls(baseName);
-  let idx = 0;
-
-  function tryNextBatch() {
-    if (idx >= candidates.length) {
-      const fallback = createRomanticFallbackDataURI(baseName, subtitle);
-      resolvedImageCache.set(baseName, fallback);
-      onResolved(fallback);
-      return;
-    }
-
-    // Probe 8 candidates simultaneously so resolution finishes in <150ms
-    const batch = candidates.slice(idx, idx + 8);
-    idx += 8;
-    let settled = false;
-    let failedCount = 0;
-
-    batch.forEach((url) => {
-      const probe = new Image();
-      probe.onload = () => {
-        if (!settled) {
-          settled = true;
-          resolvedImageCache.set(baseName, url);
-          onResolved(url);
+async function checkImageExists(url) {
+  if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+    try {
+      const res = await fetch(url, { method: 'HEAD', cache: 'no-cache' });
+      if (res.ok) {
+        const contentType = (res.headers.get('content-type') || '').toLowerCase();
+        // Ensure SPA fallback HTML isn't mistaken for an image
+        if (contentType.startsWith('image/') || contentType === '' || contentType.includes('octet-stream')) {
+          return true;
         }
-      };
-      probe.onerror = () => {
-        failedCount++;
-        if (!settled && failedCount === batch.length) {
-          tryNextBatch();
-        }
-      };
-      probe.src = url;
-    });
-  }
-
-  tryNextBatch();
-}
-
-function syncImageFromFolder(imgEl, baseName, subtitle = '') {
-  if (!imgEl) return;
-  const requestToken = `${baseName}_${Date.now()}`;
-  imgEl.setAttribute('data-sync-token', requestToken);
-
-  if (resolvedImageCache.has(baseName)) {
-    imgEl.src = resolvedImageCache.get(baseName);
-    return;
-  }
-
-  // Show styled fallback immediately while resolving
-  imgEl.src = createRomanticFallbackDataURI(baseName, subtitle);
-
-  resolvePhotoUrl(baseName, subtitle, (finalUrl) => {
-    if (imgEl.getAttribute('data-sync-token') === requestToken) {
-      imgEl.src = finalUrl;
+      }
+      return false;
+    } catch {
+      // Fallback to Image object below if fetch is blocked
     }
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
   });
 }
 
-function preloadAllCameraPhotos() {
-  for (let i = 1; i <= TOTAL_CAMERA_PHOTOS; i++) {
-    const name = `Pokie${i}`;
-    resolvePhotoUrl(name, `PokieCam Memory ${i} of ${TOTAL_CAMERA_PHOTOS}`, () => {});
+/**
+ * Resolves the real URL for baseName in the background and caches it in verifiedPhotoCache.
+ * Never aborts even if the 3-second slideshow advances while resolving!
+ */
+function resolveRealPhotoUrl(baseName) {
+  if (verifiedPhotoCache.has(baseName)) {
+    return Promise.resolve(verifiedPhotoCache.get(baseName));
   }
+  if (inFlightResolutions.has(baseName)) {
+    return inFlightResolutions.get(baseName);
+  }
+
+  const promise = (async () => {
+    const candidates = getOrderedCandidates(baseName);
+    for (const candidateUrl of candidates) {
+      const exists = await checkImageExists(candidateUrl);
+      if (exists) {
+        verifiedPhotoCache.set(baseName, candidateUrl);
+        recordWorkingFormat(candidateUrl);
+        inFlightResolutions.delete(baseName);
+        return candidateUrl;
+      }
+    }
+    inFlightResolutions.delete(baseName);
+    return null;
+  })();
+
+  inFlightResolutions.set(baseName, promise);
+  return promise;
+}
+
+/**
+ * Syncs imgEl with the user's custom photo from the images/ folder.
+ */
+function syncImageFromFolder(imgEl, baseName, subtitle = '') {
+  if (!imgEl) return;
+
+  const currentTarget = baseName;
+  imgEl.setAttribute('data-current-photo', currentTarget);
+
+  // Instant hit if already verified
+  if (verifiedPhotoCache.has(baseName)) {
+    imgEl.src = verifiedPhotoCache.get(baseName);
+    return;
+  }
+
+  // Show styled placeholder while checking candidates
+  imgEl.src = createRomanticFallbackDataURI(baseName, subtitle);
+
+  resolveRealPhotoUrl(baseName).then((foundUrl) => {
+    if (foundUrl && imgEl.getAttribute('data-current-photo') === currentTarget) {
+      imgEl.src = foundUrl;
+    }
+  });
 }
 
 // Spotify iFrame API Controller for automatic playback on Page 4
@@ -609,6 +651,13 @@ function initNavigationButtons() {
   });
 }
 
+// Sequentially resolve Pokie1..Pokie14 one at a time in the background
+async function warmCameraPhotosSequentially() {
+  for (let i = 1; i <= TOTAL_CAMERA_PHOTOS; i++) {
+    await resolveRealPhotoUrl(`Pokie${i}`);
+  }
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   initPasscodeKeypad();
@@ -617,5 +666,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initForeverPolaroids();
   initFloatingHearts();
   initNavigationButtons();
-  preloadAllCameraPhotos();
+  warmCameraPhotosSequentially();
 });
